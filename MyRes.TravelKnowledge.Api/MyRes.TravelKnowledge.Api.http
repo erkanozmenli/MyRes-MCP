@@ -1,0 +1,11 @@
+@MyRes_TravelKnowledge_Api_HostAddress = http://localhost:5000
+
+POST {{MyRes_TravelKnowledge_Api_HostAddress}}/travel-knowledge/search
+Content-Type: application/json
+
+{
+  "query": "Do I need documents when transiting through a US airport?",
+  "country": "US",
+  "topic": "transit",
+  "topK": 5
+}

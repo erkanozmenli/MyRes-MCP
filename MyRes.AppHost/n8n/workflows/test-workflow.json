@@ -1,0 +1,54 @@
+{
+  "name": "Test Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/responses",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"gpt-5.6-luna\",\n  \"input\": \"Hello\"\n}",
+        "options": {}
+      },
+      "id": "0387f97b-2c19-432a-a70b-a390f8524e3c",
+      "name": "OpenAI HTTP Request Test",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "pBbsuTLZ1h7Wihko",
+          "name": "Bearer Auth account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a7c66e09-ff65-4244-a32b-c2277f25074b",
+  "meta": {
+    "instanceId": "f8b217a8aad62ca022716f371463f312ca4ffe54cc5fc589a6050c7f0f6cc8c4"
+  },
+  "nodeGroups": [],
+  "id": "v1l3k8REQtq4YIa8",
+  "tags": []
+}

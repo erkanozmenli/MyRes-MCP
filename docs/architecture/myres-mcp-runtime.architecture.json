@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "MyRes-MCP Runtime Request Flow",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "viewBox": [1650, 900],
+    "repository": {
+      "url": "https://github.com/erkanozmenli/MyRes-MCP",
+      "revision": "a51061053db1675fcaeeb01265d830155ca640bb"
+    }
+  },
+  "components": [
+    { "id": "traveler", "type": "external", "label": "User", "pos": [30, 300], "size": [115, 68] },
+    { "id": "chatFrontend", "type": "frontend", "label": "React / Vite", "pos": [205, 300], "size": [150, 68], "sources": [{ "path": "frontend/myres-mcp-ai-test/src/App.tsx" }] },
+    { "id": "chatTrigger", "type": "backend", "label": "n8n Chat Trigger", "pos": [435, 300], "size": [160, 68], "sources": [{ "path": "MyRes.AppHost/n8n/workflows/myres-mcp-aiI.json" }] },
+    { "id": "mainAgent", "type": "backend", "label": "Main Agent", "pos": [660, 300], "size": [145, 68], "sources": [{ "path": "MyRes.AppHost/n8n/workflows/myres-mcp-aiI.json" }] },
+    { "id": "flightAgent", "type": "backend", "label": "Flight Agent", "pos": [895, 100], "size": [145, 68], "sources": [{ "path": "MyRes.AppHost/n8n/workflows/myres-mcp-aiI.json" }] },
+    { "id": "hotelAgent", "type": "backend", "label": "Hotel Agent", "pos": [895, 300], "size": [145, 68], "sources": [{ "path": "MyRes.AppHost/n8n/workflows/myres-mcp-aiI.json" }] },
+    { "id": "knowledgeAgent", "type": "backend", "label": "Travel Knowledge Agent", "pos": [875, 500], "size": [185, 68], "sources": [{ "path": "MyRes.AppHost/n8n/workflows/myres-mcp-aiI.json" }] },
+    { "id": "mcpTools", "type": "backend", "label": "MCP API", "pos": [1130, 300], "size": [140, 68], "sources": [{ "path": "MyRes.Mcp.Api/Program.cs" }] },
+    { "id": "providerService", "type": "backend", "label": "Provider Service", "pos": [1370, 100], "size": [165, 68], "sources": [{ "path": "MyRes.ProviderService.Api/Program.cs" }, { "path": "MyRes.Mcp.Api/Services/FlightApiClient.cs" }] },
+    { "id": "travelKnowledgeApi", "type": "backend", "label": "Travel Knowledge API", "pos": [1370, 500], "size": [195, 68], "sources": [{ "path": "MyRes.TravelKnowledge.Api/Program.cs" }] },
+    { "id": "qdrantStore", "type": "database", "label": "Qdrant", "pos": [1130, 700], "size": [135, 68], "sources": [{ "path": "MyRes.TravelKnowledge.Infrastructure/Qdrant/QdrantTravelKnowledgeRepository.cs" }] },
+    { "id": "openAiEmbeddings", "type": "external", "label": "OpenAI Embeddings", "pos": [1390, 700], "size": [175, 68], "sources": [{ "path": "MyRes.TravelKnowledge.Infrastructure/ServiceCollectionExtensions.cs" }] },
+    { "id": "redisMemory", "type": "database", "label": "Redis memory", "pos": [435, 540], "size": [160, 68], "sources": [{ "path": "MyRes.AppHost/n8n/workflows/myres-mcp-aiI.json" }] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Client", "wraps": ["chatFrontend"] },
+    { "kind": "region", "label": "AI Orchestration", "wraps": ["chatTrigger", "mainAgent", "flightAgent", "hotelAgent", "knowledgeAgent"] },
+    { "kind": "region", "label": "MCP / Application Services", "wraps": ["mcpTools", "providerService", "travelKnowledgeApi"] }
+  ],
+  "connections": [
+    { "id": "userToFrontend", "from": "traveler", "to": "chatFrontend" },
+    { "id": "frontendToN8n", "from": "chatFrontend", "to": "chatTrigger", "label": "chat / streaming", "variant": "emphasis", "labelAt": [395, 382] },
+    { "id": "triggerToMain", "from": "chatTrigger", "to": "mainAgent", "label": "workflow", "variant": "emphasis" },
+    { "id": "mainToFlight", "from": "mainAgent", "to": "flightAgent", "label": "specialist delegation" },
+    { "id": "mainToHotel", "from": "mainAgent", "to": "hotelAgent" },
+    { "id": "mainToKnowledge", "from": "mainAgent", "to": "knowledgeAgent" },
+    { "id": "flightToMcp", "from": "flightAgent", "to": "mcpTools", "label": "MCP" },
+    { "id": "hotelToMcp", "from": "hotelAgent", "to": "mcpTools", "label": "MCP", "labelAt": [1070, 390] },
+    { "id": "knowledgeToMcp", "from": "knowledgeAgent", "to": "mcpTools", "label": "MCP" },
+    { "id": "mcpToProvider", "from": "mcpTools", "to": "providerService", "label": "HTTP" },
+    { "id": "mcpToTravelKnowledge", "from": "mcpTools", "to": "travelKnowledgeApi", "label": "HTTP" },
+    { "id": "travelKnowledgeToQdrant", "from": "travelKnowledgeApi", "to": "qdrantStore", "label": "vector search" },
+    { "id": "travelKnowledgeToEmbeddings", "from": "travelKnowledgeApi", "to": "openAiEmbeddings", "label": "embeddings", "fromSide": "bottom", "toSide": "top" },
+    { "id": "agentsToRedis", "from": "mainAgent", "to": "redisMemory", "label": "conversation memory" }
+  ]
+}

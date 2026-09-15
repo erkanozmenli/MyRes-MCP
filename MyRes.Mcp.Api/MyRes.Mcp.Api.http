@@ -1,0 +1,7 @@
+@MyRes.Mcp.Api_HostAddress = http://localhost:5101
+
+GET {{MyRes.Mcp.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+### Search travel knowledge through the MCP endpoint using an MCP client.

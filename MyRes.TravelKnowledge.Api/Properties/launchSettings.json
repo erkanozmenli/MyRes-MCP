@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "MyRes.TravelKnowledge.Api": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:4002;http://localhost:3002"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/McpService/">
+    <Project Path="MyRes.Mcp.Api/MyRes.Mcp.Api.csproj" />
+  </Folder>
+  <Folder Name="/ProviderService/">
+    <Project Path="MyRes.ProviderService.Api/MyRes.ProviderService.Api.csproj" />
+    <Project Path="MyRes.ProviderService.Domain/MyRes.ProviderService.Domain.csproj" />
+    <Project Path="MyRes.ProviderService.Infrastructure/MyRes.ProviderService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/TravelKnowledge/">
+    <Project Path="MyRes.TravelKnowledge.Api/MyRes.TravelKnowledge.Api.csproj" />
+    <Project Path="MyRes.TravelKnowledge.Application/MyRes.TravelKnowledge.Application.csproj" />
+    <Project Path="MyRes.TravelKnowledge.Domain/MyRes.TravelKnowledge.Domain.csproj" />
+    <Project Path="MyRes.TravelKnowledge.Infrastructure/MyRes.TravelKnowledge.Infrastructure.csproj" />
+  </Folder>
+  <Project Path="MyRes.N8nBootstrap/MyRes.N8nBootstrap.csproj" />
+  <Project Path="MyRes.AppHost/MyRes.AppHost.csproj" />
+</Solution>

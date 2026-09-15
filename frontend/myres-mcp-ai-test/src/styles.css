@@ -1,0 +1,235 @@
+:root {
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #211d27;
+  background: #f6f5f7;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  --chat--color--primary: #8b3ee8;
+  --chat--color--primary-shade-50: #7b2fd1;
+  --chat--color--primary--shade-100: #6924b8;
+  --chat--color--secondary: #8b3ee8;
+  --chat--color-secondary-shade-50: #7b2fd1;
+  --chat--color-white: #ffffff;
+  --chat--color-light: #f7f6f8;
+  --chat--color-light-shade-50: #eeebf0;
+  --chat--color-light-shade-100: #ded9e2;
+  --chat--color-medium: #c9c3cd;
+  --chat--color-dark: #211d27;
+  --chat--color-disabled: #847d89;
+  --chat--color-typing: #655e6a;
+  --chat--border-radius: 0.75rem;
+  --chat--window--width: 100%;
+  --chat--window--height: 100%;
+  --chat--header--background: #f0e5f8;
+  --chat--header--color: #35263f;
+  --chat--header--padding: 24px 22px;
+  --chat--message--bot--background: #f4f1f6;
+  --chat--message--bot--color: #211d27;
+  --chat--message--user--background: #aa3bff;
+  --chat--message--user--color: #ffffff;
+  --chat--message--pre--background: #ece8ef;
+  --chat--textarea--height: 56px;
+  --chat--input--send--button--background: #8b3ee8;
+  --chat--input--send--button--color: #ffffff;
+  --chat--input--send--button--background-hover: #7b2fd1;
+  --chat--input--send--button--color-hover: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+button,
+textarea,
+input {
+  font: inherit;
+}
+
+.page-shell {
+  width: min(100%, 1180px);
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0 auto;
+  padding: clamp(12px, 2vw, 24px);
+  display: flex;
+  justify-content: center;
+}
+
+.chat-area {
+  width: min(100%, 880px);
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #ded9e2;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 18px 48px rgba(44, 32, 52, 0.09);
+}
+
+#n8n-chat {
+  width: 100%;
+  height: 100%;
+}
+
+.chat-stage {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.react-welcome-message {
+  position: absolute;
+  left: 16px;
+  bottom: 92px;
+  z-index: 2;
+  max-width: calc(100% - 32px);
+  padding: var(--chat--spacing);
+  border-radius: var(--chat--border-radius);
+  border-bottom-left-radius: 0;
+  color: var(--chat--message--bot--color);
+  background: var(--chat--message--bot--background);
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+.react-chat-placeholder {
+  position: absolute;
+  left: 16px;
+  bottom: 18px;
+  z-index: 2;
+  max-width: calc(100% - 96px);
+  overflow: hidden;
+  color: #847d89;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.app-header {
+  min-height: 116px;
+  padding: 24px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  color: var(--chat--header--color);
+  background: var(--chat--header--background);
+}
+
+.app-header h1,
+.app-header p {
+  margin: 0;
+}
+
+.app-header h1 {
+  font-size: 2rem;
+}
+
+.app-header p {
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.language-switcher {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #8d7d98;
+  font-size: 0.875rem;
+}
+
+.language-switcher button {
+  padding: 4px;
+  border: 0;
+  color: #6b5c76;
+  background: transparent;
+  cursor: pointer;
+}
+
+.language-switcher button:hover {
+  color: #7b2fd1;
+}
+
+.language-switcher button.active {
+  color: #6924b8;
+  font-weight: 700;
+}
+
+#n8n-chat .chat-header {
+  display: none;
+}
+
+#n8n-chat .chat-input-send-button:disabled {
+  background: #eeebf0;
+}
+
+.configuration-message {
+  flex: 1;
+  padding: 32px;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  color: #554e59;
+  background: linear-gradient(145deg, #ffffff, #faf8fb);
+}
+
+.configuration-message h2 {
+  margin: 0 0 10px;
+  color: #2c2631;
+  font-size: 1.1rem;
+  font-weight: 650;
+}
+
+.configuration-message p {
+  margin: 0;
+}
+
+.configuration-message code {
+  padding: 0.15em 0.4em;
+  border-radius: 5px;
+  color: #791bc0;
+  background: #f0e5f8;
+}
+
+@media (max-width: 640px) {
+  .page-shell {
+    padding: 8px;
+  }
+
+  .chat-area {
+    border-radius: 14px;
+  }
+
+  .app-header {
+    min-height: 104px;
+    padding: 18px 16px;
+    gap: 12px;
+  }
+
+  .app-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .app-header p {
+    font-size: 0.9rem;
+  }
+}

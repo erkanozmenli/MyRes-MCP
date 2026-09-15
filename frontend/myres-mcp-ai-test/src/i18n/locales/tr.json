@@ -1,0 +1,21 @@
+{
+  "app": {
+    "title": "MyRes AI Asistanı",
+    "subtitle": "Uçuş, otel ve seyahat bilgileri"
+  },
+  "chat": {
+    "initialMessage": "Merhaba! Seyahat planlarınız için nasıl yardımcı olabilirim?",
+    "newConversation": "Yeni sohbet",
+    "inputPlaceholder": "Seyahatiniz hakkında sorun...",
+    "closeButtonTooltip": "Sohbeti kapat"
+  },
+  "errors": {
+    "endpointMissing": "n8n sohbet adresi yapılandırılmamış.",
+    "setEnvironmentVariable": "VITE_N8N_CHAT_URL değerini ayarlayın."
+  },
+  "language": {
+    "selectorLabel": "Arayüz dili",
+    "turkish": "Türkçe",
+    "english": "İngilizce"
+  }
+}

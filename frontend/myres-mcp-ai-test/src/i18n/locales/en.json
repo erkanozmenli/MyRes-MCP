@@ -1,0 +1,21 @@
+{
+  "app": {
+    "title": "MyRes AI Assistant",
+    "subtitle": "Flights, hotels, and travel information"
+  },
+  "chat": {
+    "initialMessage": "Hello! How can I help with your travel plans?",
+    "newConversation": "New conversation",
+    "inputPlaceholder": "Ask about your trip...",
+    "closeButtonTooltip": "Close chat"
+  },
+  "errors": {
+    "endpointMissing": "n8n chat endpoint is not configured.",
+    "setEnvironmentVariable": "Set VITE_N8N_CHAT_URL."
+  },
+  "language": {
+    "selectorLabel": "UI language",
+    "turkish": "Turkish",
+    "english": "English"
+  }
+}

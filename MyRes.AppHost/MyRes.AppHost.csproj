@@ -1,0 +1,25 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.2.4">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>d1fb8969-bfa5-40d7-8bf6-fb77ca2069a9</UserSecretsId>
+  </PropertyGroup>
+
+    <ItemGroup>
+	    <PackageReference Include="Aspire.Hosting.AppHost" Version="13.2.3" />
+	    <PackageReference Include="Aspire.Hosting.Redis" Version="13.2.3" />
+	    <PackageReference Include="Aspire.Hosting.Qdrant" Version="13.2.3" />
+	    <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.2.3" />
+    </ItemGroup>
+	
+  <ItemGroup>
+    <ProjectReference Include="..\MyRes.Mcp.Api\MyRes.Mcp.Api.csproj" />
+    <ProjectReference Include="..\MyRes.N8nBootstrap\MyRes.N8nBootstrap.csproj" />
+    <ProjectReference Include="..\MyRes.ProviderService.Api\MyRes.ProviderService.Api.csproj" />
+    <ProjectReference Include="..\MyRes.TravelKnowledge.Api\MyRes.TravelKnowledge.Api.csproj" />
+  </ItemGroup>
+
+</Project>

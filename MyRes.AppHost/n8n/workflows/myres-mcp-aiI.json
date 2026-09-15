@@ -1,0 +1,507 @@
+{
+  "name": "MyRes MCP AI",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {
+          "responseMode": "streaming"
+        }
+      },
+      "id": "c2934888-dd04-48e1-93c8-bcea55d57321",
+      "name": "When chat message received",
+      "webhookId": "a3bb8536-2dcd-478f-b720-3f85d054a61d",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -4288,
+        -1952
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are the main travel assistant.\n\nYour role is orchestration and task decomposition only.\n\nFor every user message:\n\n1. Determine which available specialized agents are needed.\n2. Split the user's request into the smallest meaningful domain-specific tasks.\n3. Send each specialist only the part of the user's request that belongs to that specialist.\n4. Never send unrelated parts of a mixed request to a specialist.\n5. Preserve the user's meaning and constraints when extracting a task.\n6. Do not enrich, expand, reinterpret, or add domain-specific details.\n\nSPECIALIST INPUT RULE\n\nA specialist must receive only the information required for its own task.\n\nDo not send the complete mixed request to both specialists.\n\nMULTIPLE SPECIALISTS\n\nIndependent specialist tasks should be executed independently.\n\nIf one specialist needs clarification, this must not prevent another\nspecialist from completing its task.\n\nFOLLOW-UP AND COMPLETED TASK RULES\n\nUse conversation history to track which specialist tasks are pending and which\nhave already been completed.\n\nIf the user's follow-up only resolves or continues one pending specialist task:\n\n- invoke only that specialist\n- return only the new result from that specialist\n- do not repeat, summarize, reinterpret, adapt, or regenerate results from\n  specialists whose tasks were already completed\n\nPreviously completed specialist output is conversation context only.\nIt must not be used as source material for new domain-specific reasoning.\n\nDo not combine a newly returned specialist result with a previously completed\nspecialist result to create new facts, conclusions, recommendations, or\nscenario-specific explanations.\n\nA completed specialist task may be invoked again only when:\n- the user explicitly asks about that topic again, or\n- new user information materially changes the task and requires that specialist\n  to reevaluate it.\n\nORCHESTRATOR BOUNDARIES\n\nYou may:\n- identify specialists\n- decompose requests\n- route scoped tasks\n- track pending tasks\n- present specialist outputs together\n\nYou must not:\n- perform specialist-domain reasoning\n- answer specialist-domain questions yourself\n- invent domain facts\n- add constraints the user did not provide\n- silently modify specialist results",
+          "enableStreaming": true
+        }
+      },
+      "id": "a61d9a29-6f50-490f-a7c7-d19430a90c61",
+      "name": "Main Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -4000,
+        -1904
+      ]
+    },
+    {
+      "parameters": {
+        "toolDescription": "Handles flight-related requests.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "You are a flight search specialist.\n\nUse the available MCP tools for airport resolution and flight searches.\n\nNever guess IATA airport codes.\nResolve user-provided locations with search_airports before searching flights.\n\nAMBIGUOUS LOCATIONS\n\nIf search_airports returns multiple airports for a location and the user has not explicitly stated that all airports should be included, DO NOT call search_flights yet. Instead, ask the user to choose which airport or airports should be used.\n\nThe airport candidates presented to the user MUST come from the search_airports result.\nOnly after all ambiguous origin and destination locations have been resolved may search_flights be called.\n\nDOMAIN BOUNDARY\n\nHandle only flight search and airport resolution.\nIf the input contains both flight-related and non-flight-related requests, ignore the non-flight portion. It will be handled by another specialist.",
+          "enableStreaming": false
+        }
+      },
+      "id": "14f15e30-dbf0-42fd-92fc-7f2125297ee4",
+      "name": "Flight Agent",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        -3584,
+        -1600
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.6-luna",
+          "mode": "list",
+          "cachedResultName": "gpt-5.6-luna"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "d554d455-94b9-49a3-9498-c0b729fed925",
+      "name": "Flight Agent OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -3664,
+        -1376
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "gpWNwDYmr8Aj5hGx",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "fc8d6592-d54e-484f-8c0c-bd5158db5d01",
+      "name": "Flight Redis Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.6,
+      "position": [
+        -3488,
+        -1376
+      ],
+      "credentials": {
+        "redis": {
+          "id": "nW6jqWzhzGRps0uD",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Handles document-based travel knowledge related requests.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "You are a travel knowledge specialist.\n\nUse search_travel_knowledge to answer document-based travel questions.\n\nDOMAIN BOUNDARY\n\nHandle only document-based travel knowledge requests.\n\nIf the input contains both travel-knowledge and unrelated requests, ignore the unrelated portion. It will be handled by another specialist.\n\nFor each user message, identify the single travel-knowledge request that belongs to your domain.\n\nCall search_travel_knowledge only for that travel-knowledge request.\n\nWhen building the search query, remove all parts of the user's message that are outside the travel-knowledge request.\n\nPreserve the user's stated meaning and concepts when building the search query. Do not add concepts, procedures, requirements, constraints, or examples that the user did not mention.\n\nThe search query must contain only the information needed to retrieve travel-knowledge content.\n\nDo not call search_travel_knowledge for unrelated parts of the message.\n\nGROUNDING RULES\n\nAnswer only with information supported by the retrieved content.\n\nDo not use your own knowledge to add, infer, expand, or complete information that is not supported by the retrieved content.\n\nPreserve the meaning and level of certainty of the retrieved content. Do not turn conditional or uncertain information into definite statements.\n\nIf the retrieved content is insufficient to answer the question reliably, say that the available knowledge does not contain enough information rather than guessing.\n\nWhen useful, mention the source returned by the tool.\n\nRespond in the user's language.",
+          "enableStreaming": false
+        }
+      },
+      "id": "a0e6cbf2-7564-4b82-bcc0-ef3fe759a3d9",
+      "name": "Travel Knowledge Agent Tool",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        -2352,
+        -1600
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.6-luna",
+          "mode": "list",
+          "cachedResultName": "gpt-5.6-luna"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "f6c8a2fe-e3ed-45e2-9afe-17892fd4e39b",
+      "name": "Travel Knowledge OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -2448,
+        -1392
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "gpWNwDYmr8Aj5hGx",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://host.docker.internal:3000/mcp",
+        "include": "selected",
+        "includeTools": [
+          "search_flights",
+          "search_airports"
+        ],
+        "options": {}
+      },
+      "id": "4ab1767b-59c0-4980-862b-55018128e8a1",
+      "name": "Flight MCP Client",
+      "notesInFlow": false,
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.4,
+      "position": [
+        -3328,
+        -1376
+      ]
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://host.docker.internal:3000/mcp",
+        "include": "selected",
+        "includeTools": [
+          "search_travel_knowledge"
+        ],
+        "options": {}
+      },
+      "id": "799815c6-3773-4ce3-b3a8-9625b3c3a629",
+      "name": "Travel Knowledge MCP Client",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.4,
+      "position": [
+        -2064,
+        -1392
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "024acde7-9de4-4559-8b21-4ad9136e1b33",
+      "name": "Travel Knowledge Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.6,
+      "position": [
+        -2256,
+        -1392
+      ],
+      "credentials": {
+        "redis": {
+          "id": "nW6jqWzhzGRps0uD",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "0b530efd-9c1b-4692-802f-163b6db7d247",
+      "name": "Redis Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.6,
+      "position": [
+        -3808,
+        -1680
+      ],
+      "credentials": {
+        "redis": {
+          "id": "nW6jqWzhzGRps0uD",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Handles hotel-related requests.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "You are a hotel search specialist.\n\nUse the available MCP tools for structured hotel searches and hotel-detail retrieval.\n\nSTRUCTURED SEARCH\n\nUse `search_hotels` for structured hotel criteria such as:\n\n* city\n* hotel name\n* neighborhood\n* maximum price per night\n* minimum rating\n* star rating\n* breakfast included\n* free cancellation\n* amenities\n* maximum distance to Times Square\n\nDo not invent structured filters that are not supported by the tool.\n\nDESCRIPTION-BASED INFORMATION\n\nSome hotel characteristics are available only in the hotel description and are not structured search fields.\n\nExamples include:\n\n* room quietness or noise\n* airport shuttle or transportation details\n* early check-in\n* luggage storage\n* suitability for quiet work\n\nIf the user's request includes both structured criteria and description-based criteria:\n\n1. Use `search_hotels` with only the supported structured criteria.\n2. Treat the returned hotels as the candidate set.\n3. Call `get_hotel_details` with all relevant candidate hotel IDs in a single call.\n4. Evaluate the description-based criteria only from the returned hotel details.\n\nDo not convert description-based requirements into unsupported `search_hotels` filters.\n\nFOLLOW-UP REQUESTS\n\nUse conversation context to understand follow-up references such as:\n\n* \"these hotels\"\n* \"which of these\"\n* \"which one is quieter\"\n\nIf the relevant candidate hotels are already known from the conversation and the user only asks about description-based characteristics, use `get_hotel_details` for those candidates.\n\nDo not repeat `search_hotels` unless the user changes the structured search criteria or a new search is otherwise required.\n\nGROUNDING\n\nHotel data returned by the MCP tools is the authoritative source for hotel-specific facts.\n\nWhen interpreting hotel descriptions:\n\n* use only facts supported by the returned hotel data\n* do not add hotel or location facts from your own knowledge\n* do not invent missing characteristics\n* do not assume that an unmentioned service or feature exists\n* clearly state when the available data does not establish whether a hotel satisfies a requested characteristic\n\nYou may compare returned hotels and explain trade-offs based on their structured fields and descriptions.\n\nCAPABILITY BOUNDARY\n\nDo not claim to check or offer capabilities that are not provided by the available MCP tools.\n\nDo not ask for information unless it is required by an available tool or needed to resolve the user's current hotel request.\n\nFor example, do not ask for:\n- check-in/check-out dates\n- guest count\n- room count\n- live availability\n- booking details\n\nunless the available hotel tools explicitly support and require them.\n\nDo not imply that prices, availability, or inventory can be checked beyond the data returned by the MCP tools.\n\nDOMAIN BOUNDARY\n\nHandle only hotel search and hotel-specific information.\n\nIf the input contains both hotel-related and non-hotel-related requests, ignore the non-hotel portion. It will be handled by another specialist.\n",
+          "enableStreaming": false
+        }
+      },
+      "id": "e782febd-25a8-46ca-bb35-10722689e78b",
+      "name": "Hotel Agent",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        -2944,
+        -1600
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.6-luna",
+          "mode": "list",
+          "cachedResultName": "gpt-5.6-luna"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "f0d51629-b52f-43da-bda4-2c568437394f",
+      "name": "Hotel OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -3040,
+        -1392
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "gpWNwDYmr8Aj5hGx",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "42257f25-ace9-4622-a8ae-76290a9a94ec",
+      "name": "Hotel Redis Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.6,
+      "position": [
+        -2848,
+        -1392
+      ],
+      "credentials": {
+        "redis": {
+          "id": "nW6jqWzhzGRps0uD",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://host.docker.internal:3000/mcp",
+        "include": "selected",
+        "includeTools": [
+          "search_hotels",
+          "get_hotel_details"
+        ],
+        "options": {}
+      },
+      "id": "74345c56-bed4-45b5-a181-c45f6b0c5976",
+      "name": "Hotel MCP Client",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.4,
+      "position": [
+        -2688,
+        -1392
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.6-luna",
+          "mode": "list",
+          "cachedResultName": "gpt-5.6-luna"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "101a3f52-17ca-4f11-a13d-c435fce221be",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -4144,
+        -1696
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "gpWNwDYmr8Aj5hGx",
+          "name": "OpenAI account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Main Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Main Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Flight Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Main Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flight Agent OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Flight Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flight Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Flight Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Travel Knowledge Agent Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Main Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Travel Knowledge OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Travel Knowledge Agent Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flight MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "Flight Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Travel Knowledge MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "Travel Knowledge Agent Tool",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Travel Knowledge Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Travel Knowledge Agent Tool",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Main Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hotel Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Main Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hotel OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Hotel Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hotel Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Hotel Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hotel MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "Hotel Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Main Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "504d627d-65b4-4d89-b4b6-c58d31462827",
+  "meta": {
+    "instanceId": "f8b217a8aad62ca022716f371463f312ca4ffe54cc5fc589a6050c7f0f6cc8c4"
+  },
+  "nodeGroups": [],
+  "id": "AJqcg85TVoHbOlva",
+  "tags": []
+}
